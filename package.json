@@ -6,7 +6,7 @@
     "scripts": {
         "start": "electron .",
         "rebuild": "electron-rebuild -f",
-        "postinstall": "npx electron-builder install-app-deps",
+        "postinstall": "# npx electron-builder install-app-deps",
         "build:win": "npx electron-builder --win --config electron-builder-deploy64.yml",
         "build:mac": "npx electron-builder --mac --config electron-builder-deploy64.yml",
         "build:lin": "npx electron-builder --linux --config electron-builder-deploy64.yml",
@@ -31,6 +31,8 @@
         "electron": "^10.1.1"
     },
     "dependencies": {
-        "electron-store": "^6.0.0"
+        "electron-store": "^6.0.0",
+        "i18n": "^0.10.0",
+        "image-to-base64": "^2.1.1"
     }
 }
