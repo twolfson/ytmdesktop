@@ -29,7 +29,8 @@ const { statusBarMenu } = require('./src/providers/templateProvider')
 const settingsProvider = require('./src/providers/settingsProvider')
 const infoPlayerProvider = require('./src/providers/infoPlayerProvider')
 /* Variables =========================================================================== */
-const defaultUrl = 'https://music.youtube.com'
+// const defaultUrl = 'https://music.youtube.com'
+const defaultUrl = 'https://music.youtube.com/library'
 
 let mainWindow,
     view,
