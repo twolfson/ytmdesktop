@@ -320,9 +320,6 @@ function createWindow() {
     view.webContents.on('media-started-playing', function () {
         if (!infoPlayerProvider.hasInitialized()) {
             infoPlayerProvider.init(view)
-            if (isLinux()) {
-                mprisProvider.setRealPlayer(infoPlayerProvider) //this lets us keep track of the current time in playback.
-            }
         }
 
         if (
@@ -381,9 +378,6 @@ function createWindow() {
         var nowPlaying = `${title} - ${author}`
 
         if (title && author) {
-            rainmeterNowPlaying.setActivity(getAll())
-            mprisProvider.setActivity(getAll())
-
             mediaControl.setProgress(
                 mainWindow,
                 settingsProvider.get('settings-enable-taskbar-progressbar')
@@ -1506,18 +1500,6 @@ ipcMain.on('log', (dataMain, dataRenderer) => {
         writeLog(dataRenderer)
     }
 })
-
-if (settingsProvider.get('settings-companion-server')) {
-    companionServer.start()
-}
-
-if (settingsProvider.get('settings-rainmeter-web-now-playing')) {
-    rainmeterNowPlaying.start()
-}
-
-if (settingsProvider.get('settings-discord-rich-presence')) {
-    discordRPC.start()
-}
 
 ipcMain.on('set-audio-output-list', (_, data) => {
     updateTrayAudioOutputs(data)
