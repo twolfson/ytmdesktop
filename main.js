@@ -414,16 +414,6 @@ function createWindow() {
             }
 
             /**
-             * Update only when change seekbar
-             */
-            if (
-                lastSeekbarCurrentPosition - seekbarCurrentPosition > 2 ||
-                lastSeekbarCurrentPosition - seekbarCurrentPosition < -2
-            ) {
-                discordRPC.setActivity(getAll())
-            }
-
-            /**
              * Update only when change track
              */
             if (lastTrackId !== trackId) {
@@ -485,7 +475,6 @@ function createWindow() {
                 }
 
                 writeLog({ type: 'info', data: `Listen: ${title} - ${author}` })
-                discordRPC.setActivity(getAll())
             }
 
             /**
@@ -493,8 +482,6 @@ function createWindow() {
              */
             if (lastIsPaused != playerInfo.isPaused) {
                 lastIsPaused = playerInfo.isPaused
-
-                discordRPC.setActivity(getAll())
 
                 if (!isMac() && !settingsProvider.get('settings-shiny-tray')) {
                     tray.updateTrayIcon(
@@ -771,22 +758,6 @@ function createWindow() {
             }
         }
     )
-
-    settingsProvider.onDidChange('settings-companion-server', (data) => {
-        if (data.newValue) {
-            companionServer.start()
-        } else {
-            companionServer.stop()
-        }
-    })
-
-    settingsProvider.onDidChange('settings-discord-rich-presence', (data) => {
-        if (data.newValue) {
-            discordRPC.start()
-        } else {
-            discordRPC.stop()
-        }
-    })
 
     settingsProvider.onDidChange('settings-custom-css-app', (data) => {
         if (data.newValue) {
