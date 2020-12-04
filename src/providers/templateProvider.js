@@ -219,8 +219,6 @@ const popUpMenu = (__, saved_mainWindow, mediaControl, app) => {
             },
         },
 
-        { type: 'separator' },
-
         {
             label: __.trans('MEDIA_CONTROL_PLAY_PAUSE'),
             type: 'normal',
@@ -242,66 +240,6 @@ const popUpMenu = (__, saved_mainWindow, mediaControl, app) => {
             type: 'normal',
             click: function () {
                 mediaControl.nextTrack(saved_mainWindow.getBrowserView())
-            },
-        },
-
-        { type: 'separator' },
-
-        {
-            label: __.trans('MEDIA_CONTROL_THUMBS_UP'),
-            type: 'normal',
-            click: function () {
-                mediaControl.upVote(saved_mainWindow.getBrowserView())
-            },
-        },
-
-        {
-            label: __.trans('MEDIA_CONTROL_THUMBS_DOWN'),
-            type: 'normal',
-            click: function () {
-                mediaControl.downVote(saved_mainWindow.getBrowserView())
-            },
-        },
-
-        { type: 'separator' },
-
-        {
-            label: __.trans('LABEL_MINIPLAYER'),
-            type: 'normal',
-            click: function () {
-                ipcMain.emit('window', { command: 'show-miniplayer' })
-            },
-        },
-
-        {
-            label: __.trans('LABEL_LYRICS'),
-            type: 'normal',
-            click: function () {
-                ipcMain.emit('window', { command: 'show-lyrics' })
-            },
-        },
-
-        {
-            label: __.trans('LABEL_SETTINGS_TAB_GENERAL_SELECT_AUDIO_OUTPUT'),
-            type: 'submenu',
-            submenu: [],
-        },
-
-        {
-            label: __.trans('LABEL_SETTINGS'),
-            type: 'normal',
-            click: function () {
-                ipcMain.emit('window', { command: 'show-settings' })
-            },
-        },
-
-        { type: 'separator' },
-
-        {
-            label: __.trans('LABEL_GUEST'),
-            type: 'normal',
-            click: () => {
-                ipcMain.emit('window', { command: 'show-guest-mode' })
             },
         },
 
