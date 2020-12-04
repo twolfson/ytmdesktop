@@ -731,6 +731,9 @@ function createWindow() {
     globalShortcut.register('MediaPlayPause', function () {
         checkDoubleTapPlayPause()
     })
+    globalShortcut.register('ctrl+volumemute', function () {
+        checkDoubleTapPlayPause()
+    })
 
     globalShortcut.register('MediaStop', function () {
         mediaControl.stopTrack(view)
@@ -739,8 +742,14 @@ function createWindow() {
     globalShortcut.register('MediaPreviousTrack', function () {
         mediaControl.previousTrack(view)
     })
+    globalShortcut.register('ctrl+volumedown', function () {
+        mediaControl.previousTrack(view)
+    })
 
     globalShortcut.register('MediaNextTrack', function () {
+        mediaControl.nextTrack(view)
+    })
+    globalShortcut.register('ctrl+volumeup', function () {
         mediaControl.nextTrack(view)
     })
 
