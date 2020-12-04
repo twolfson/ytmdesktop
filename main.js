@@ -38,7 +38,6 @@ const defaultUrl = 'https://music.youtube.com'
 
 let mainWindow,
     view,
-    miniplayer,
     lyrics,
     settings,
     infoPlayerInterval,
@@ -716,27 +715,6 @@ function createWindow() {
                     mediaControl.volumeDown(view)
                 })
                 break
-
-            case 'miniplayer-open-close':
-                registerGlobalShortcut(args.newValue, () => {
-                    try {
-                        if (miniplayer) {
-                            miniplayer.close()
-                            miniplayer = undefined
-                            mainWindow.show()
-                        } else {
-                            ipcMain.emit('window', {
-                                command: 'show-miniplayer',
-                            })
-                        }
-                    } catch {
-                        writeLog({
-                            type: 'warn',
-                            data: 'error on try open/close miniplayer',
-                        })
-                    }
-                })
-                break
         }
     })
 
@@ -776,11 +754,6 @@ function createWindow() {
     ipcMain.emit('change-accelerator', {
         type: 'media-volume-down',
         newValue: settingsAccelerator['media-volume-down'],
-    })
-
-    ipcMain.emit('change-accelerator', {
-        type: 'miniplayer-open-close',
-        newValue: settingsAccelerator['miniplayer-open-close'],
     })
 
     globalShortcut.register('MediaPlayPause', function () {
@@ -964,45 +937,12 @@ function createWindow() {
                 windowSettings()
                 break
 
-            case 'show-miniplayer':
-                windowMiniplayer()
-                break
-
-            case 'show-last-fm-login':
-                windowLastFmLogin()
-                break
-
-            case 'show-editor-theme':
-                windowThemeEditor()
-                break
-
-            case 'show-lyrics':
-                windowLyrics()
-                break
-
-            case 'show-lyrics-hidden':
-                windowLyrics()
-                lyrics.hide()
-                break
-
-            case 'show-companion':
-                windowCompanion()
-                break
-
-            case 'show-guest-mode':
-                windowGuest()
-                break
-
             case 'show-changelog':
                 windowChangelog()
                 break
 
             case 'restore-main-window':
                 mainWindow.show()
-                try {
-                    miniplayer.close()
-                    miniplayer = undefined
-                } catch {}
                 break
 
             case 'show-discord-settings':
@@ -1088,310 +1028,6 @@ function createWindow() {
         })
     }
 
-    function windowMiniplayer() {
-        if (miniplayer) {
-            miniplayer.show()
-        } else {
-            miniplayer = new BrowserWindow({
-                title: __.trans('LABEL_MINIPLAYER'),
-                icon: iconDefault,
-                modal: false,
-                frame: false,
-                center: false,
-                resizable: settingsProvider.get(
-                    'settings-miniplayer-resizable'
-                ),
-                alwaysOnTop: settingsProvider.get(
-                    'settings-miniplayer-always-top'
-                ),
-                width: settingsProvider.get('settings-miniplayer-size'),
-                height: settingsProvider.get('settings-miniplayer-size'),
-                backgroundColor: '#232323',
-                minWidth: 100,
-                minHeight: 100,
-                autoHideMenuBar: true,
-                skipTaskbar: !settingsProvider.get(
-                    'settings-miniplayer-show-task'
-                ),
-                webPreferences: {
-                    nodeIntegration: true,
-                    enableRemoteModule: true,
-                },
-            })
-
-            miniplayer.loadFile(
-                path.join(
-                    app.getAppPath(),
-                    '/src/pages/miniplayer/miniplayer.html'
-                )
-            )
-
-            let miniplayerPosition = settingsProvider.get('miniplayer-position')
-            if (miniplayerPosition != undefined) {
-                miniplayer.setPosition(
-                    miniplayerPosition.x,
-                    miniplayerPosition.y
-                )
-            }
-
-            let storeMiniplayerPositionTimer
-            miniplayer.on('move', function (e) {
-                let position = miniplayer.getPosition()
-                if (storeMiniplayerPositionTimer) {
-                    clearTimeout(storeMiniplayerPositionTimer)
-                }
-                storeMiniplayerPositionTimer = setTimeout(() => {
-                    settingsProvider.set('miniplayer-position', {
-                        x: position[0],
-                        y: position[1],
-                    })
-                }, 1000)
-            })
-
-            let storeMiniplayerSizeTimer
-            miniplayer.on('resize', function (e) {
-                try {
-                    let size = miniplayer.getSize()
-                    if (storeMiniplayerSizeTimer) {
-                        clearTimeout(storeMiniplayerSizeTimer)
-                    }
-                    storeMiniplayerSizeTimer = setTimeout(() => {
-                        settingsProvider.set(
-                            'settings-miniplayer-size',
-                            Math.min(...size)
-                        )
-                        miniplayer.setSize(Math.min(...size), Math.min(...size))
-                    }, 500)
-                } catch {
-                    writeLog({ type: 'warn', data: 'error miniplayer resize' })
-                }
-            })
-
-            mainWindow.hide()
-        }
-    }
-
-    function windowLastFmLogin() {
-        const lastfm = new BrowserWindow({
-            //parent: mainWindow,
-            icon: iconDefault,
-            modal: false,
-            frame: windowConfig.frame,
-            titleBarStyle: windowConfig.titleBarStyle,
-            center: true,
-            resizable: true,
-            backgroundColor: '#232323',
-            width: 300,
-            minWidth: 300,
-            height: 260,
-            minHeight: 260,
-            autoHideMenuBar: false,
-            skipTaskbar: false,
-            webPreferences: {
-                nodeIntegration: true,
-                webviewTag: true,
-                enableRemoteModule: true,
-            },
-        })
-
-        lastfm.loadFile(
-            path.join(
-                __dirname,
-                './src/pages/shared/window-buttons/window-buttons.html'
-            ),
-            {
-                search:
-                    'page=settings/sub/last-fm/last-fm-login&icon=music_note&hide=btn-minimize,btn-maximize&title=Last.FM Login',
-            }
-        )
-    }
-
-    function windowThemeEditor() {
-        const editor = new BrowserWindow({
-            icon: iconDefault,
-            frame: windowConfig.frame,
-            titleBarStyle: windowConfig.titleBarStyle,
-            center: true,
-            resizable: true,
-            backgroundColor: '#232323',
-            width: 700,
-            height: 800,
-            maxHeight: 800,
-            minHeight: 800,
-            webPreferences: {
-                nodeIntegration: true,
-                webviewTag: true,
-                enableRemoteModule: true,
-            },
-        })
-
-        editor.loadFile(
-            path.join(
-                __dirname,
-                './src/pages/shared/window-buttons/window-buttons.html'
-            ),
-            {
-                search:
-                    'page=editor/editor&icon=color_lens&hide=btn-minimize,btn-maximize',
-            }
-        )
-    }
-
-    function windowLyrics() {
-        if (lyrics) {
-            lyrics.show()
-        } else {
-            lyrics = new BrowserWindow({
-                icon: iconDefault,
-                frame: windowConfig.frame,
-                titleBarStyle: windowConfig.titleBarStyle,
-                center: true,
-                resizable: true,
-                backgroundColor: '#232323',
-                width: 700,
-                height: 800,
-                webPreferences: {
-                    nodeIntegration: true,
-                    webviewTag: true,
-                    enableRemoteModule: true,
-                },
-            })
-
-            let lyricsPosition = settingsProvider.get('lyrics-position')
-            if (lyricsPosition != undefined) {
-                lyrics.setPosition(lyricsPosition.x, lyricsPosition.y)
-            }
-
-            lyrics.loadFile(
-                path.join(
-                    __dirname,
-                    './src/pages/shared/window-buttons/window-buttons.html'
-                ),
-                {
-                    search:
-                        'page=lyrics/lyrics&icon=music_note&hide=btn-minimize,btn-maximize&title=' +
-                        __.trans('LABEL_LYRICS'),
-                }
-            )
-
-            let storeLyricsPositionTimer
-            lyrics.on('move', function (e) {
-                let position = lyrics.getPosition()
-                if (storeLyricsPositionTimer) {
-                    clearTimeout(storeLyricsPositionTimer)
-                }
-                storeLyricsPositionTimer = setTimeout(() => {
-                    settingsProvider.set('lyrics-position', {
-                        x: position[0],
-                        y: position[1],
-                    })
-                }, 500)
-            })
-
-            lyrics.on('closed', function () {
-                lyrics = null
-            })
-
-            // lyrics.webContents.openDevTools();
-        }
-    }
-
-    function windowCompanion() {
-        shell.openExternal(`http://localhost:9863`)
-        return
-        //const x = mainWindow.getPosition()[0]
-        //const y = mainWindow.getPosition()[1]
-
-        let size = screen.getPrimaryDisplay().workAreaSize
-
-        const settings = new BrowserWindow({
-            // parent: mainWindow,
-            icon: iconDefault,
-            skipTaskbar: false,
-            frame: windowConfig.frame,
-            titleBarStyle: windowConfig.titleBarStyle,
-            resizable: false,
-            backgroundColor: '#232323',
-            width: size.width - 450,
-            height: size.height - 450,
-            center: true,
-            title: 'companionWindowTitle',
-            webPreferences: {
-                nodeIntegration: false,
-                enableRemoteModule: true,
-            },
-            autoHideMenuBar: true,
-        })
-        settings.loadURL('http://localhost:9863')
-    }
-
-    function windowGuest() {
-        const incognitoWindow = new BrowserWindow({
-            icon: iconDefault,
-            width: mainWindowParams.width,
-            height: mainWindowParams.height,
-            minWidth: 300,
-            minHeight: 300,
-            show: true,
-            autoHideMenuBar: true,
-            backgroundColor: '#232323',
-            center: true,
-            closable: true,
-            skipTaskbar: false,
-            resize: true,
-            maximizable: true,
-            frame: true,
-            webPreferences: {
-                nodeIntegration: true,
-                enableRemoteModule: true,
-                partition: `guest-mode-${Date.now()}`,
-            },
-        })
-
-        incognitoWindow.webContents.session.setUserAgent(
-            `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${process.versions.chrome} Safari/537.36`
-        )
-
-        incognitoWindow.webContents.loadURL(mainWindowParams.url)
-    }
-
-    function windowDiscordSettings() {
-        const discord = new BrowserWindow({
-            //parent: mainWindow,
-            icon: iconDefault,
-            modal: false,
-            frame: windowConfig.frame,
-            titleBarStyle: windowConfig.titleBarStyle,
-            center: true,
-            resizable: true,
-            backgroundColor: '#232323',
-            width: 600,
-            minWidth: 600,
-            height: 220,
-            minHeight: 220,
-            autoHideMenuBar: false,
-            skipTaskbar: false,
-            webPreferences: {
-                nodeIntegration: true,
-                webviewTag: true,
-                enableRemoteModule: true,
-            },
-        })
-
-        discord.loadFile(
-            path.join(
-                __dirname,
-                './src/pages/shared/window-buttons/window-buttons.html'
-            ),
-            {
-                search:
-                    'page=settings/sub/discord/discord_settings&icon=settings&title=' +
-                    __.trans('LABEL_SETTINGS_DISCORD') +
-                    '&hide=btn-minimize,btn-maximize',
-            }
-        )
-    }
-
     function windowShortcutButtonsSettings() {
         const discord = new BrowserWindow({
             //parent: mainWindow,
@@ -1462,10 +1098,6 @@ function createWindow() {
             }
         )
     }
-
-    ipcMain.on('miniplayer-toggle-ontop', function () {
-        miniplayer.setAlwaysOnTop(!miniplayer.isAlwaysOnTop())
-    })
 
     ipcMain.on('reset-url', () => {
         mainWindowParams.url = defaultUrl
