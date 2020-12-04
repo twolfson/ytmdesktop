@@ -14,10 +14,8 @@ const {
     dialog,
 } = require('electron')
 const path = require('path')
-const isDev = require('electron-is-dev')
-const ClipboardWatcher = require('electron-clipboard-watcher')
-const electronLocalshortcut = require('electron-localshortcut')
-const electronLog = require('electron-log')
+const isDev = true
+const electronLog = console;
 const os = require('os')
 
 const { calcYTViewSize } = require('./src/utils/calcYTViewSize')
@@ -57,10 +55,6 @@ let mainWindow,
     audioDevices
 
 let isFirstTime = false
-
-let isClipboardWatcherRunning = false
-
-let renderer_for_status_bar = (clipboardWatcher = null)
 
 let mainWindowParams = {
     url: defaultUrl,
@@ -630,15 +624,6 @@ function createWindow() {
         }
         return
     })
-
-    // LOCAL
-    electronLocalshortcut.register(
-        view,
-        isMac() ? 'Cmd+,' : 'CmdOrCtrl+S',
-        () => {
-            ipcMain.emit('window', { command: 'show-settings' })
-        }
-    )
 
     // GLOBAL
     ipcMain.on('change-accelerator', (dataMain, dataRenderer) => {
@@ -1478,10 +1463,6 @@ function createWindow() {
         )
     }
 
-    ipcMain.on('switch-clipboard-watcher', () => {
-        switchClipboardWatcher()
-    })
-
     ipcMain.on('miniplayer-toggle-ontop', function () {
         miniplayer.setAlwaysOnTop(!miniplayer.isAlwaysOnTop())
     })
@@ -1595,62 +1576,6 @@ function createWindow() {
         view.webContents.removeInsertedCSS(customCSSPageKey)
     }
 
-    function switchClipboardWatcher() {
-        logDebug(
-            'Switch clipboard watcher: ' +
-                settingsProvider.get('settings-clipboard-read')
-        )
-
-        if (isClipboardWatcherRunning) {
-            clipboardWatcher !== null && clipboardWatcher.stop()
-            clipboardWatcher = null
-            isClipboardWatcherRunning = false
-        } else {
-            if (settingsProvider.get('settings-clipboard-read')) {
-                clipboardWatcher = ClipboardWatcher({
-                    watchDelay: 1000,
-                    onTextChange: (text) => {
-                        let regExp = /(https?:\/\/)(www.)?(music.youtube|youtube|youtu.be).*/
-                        let match = text.match(regExp)
-                        if (match) {
-                            let videoUrl = match[0]
-
-                            if (
-                                settingsProvider.get(
-                                    'settings-clipboard-always-ask-read'
-                                )
-                            ) {
-                                let options = {
-                                    type: 'question',
-                                    buttons: ['Yes', 'No'],
-                                    defaultId: 0,
-                                    title: 'YouTube Music Desktop',
-                                    message: `Want to play this link?\n\n${text}`,
-                                }
-
-                                dialog
-                                    .showMessageBox(mainWindow, options)
-                                    .then((success) => {
-                                        if (success.response == 0) {
-                                            loadMusicByUrl(videoUrl)
-                                        }
-                                    })
-                            } else {
-                                loadMusicByUrl(videoUrl)
-                            }
-                            writeLog({
-                                type: 'info',
-                                data:
-                                    'Video readed from clipboard: ' + videoUrl,
-                            })
-                        }
-                    },
-                })
-
-                isClipboardWatcherRunning = true
-            }
-        }
-    }
 
     function loadMusicByUrl(videoUrl) {
         if (videoUrl.includes('music.youtube')) {
@@ -1663,10 +1588,6 @@ function createWindow() {
             )
         }
     }
-
-    setTimeout(function () {
-        ipcMain.emit('switch-clipboard-watcher')
-    }, 1000)
 
     loadCustomAppScript()
     loadCustomPageScript()
