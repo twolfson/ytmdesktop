@@ -209,7 +209,7 @@ function createWindow() {
             break
     }
 
-    mainWindow = new BrowserWindow(browserWindowConfig)
+    global.mainWindow = mainWindow = new BrowserWindow(browserWindowConfig)
 
     mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
         {
@@ -285,7 +285,7 @@ function createWindow() {
 
     mainWindow.on('closed', function () {
         view = null
-        mainWindow = null
+        global.mainWindow = mainWindow = null
     })
 
     mainWindow.on('show', function () {
@@ -1295,7 +1295,7 @@ if (!gotTheLock) {
     })
 
     app.on('before-quit', function (e) {
-        mainWindow = null
+        global.mainWindow = mainWindow = null
         view = null
         if (isMac()) {
             app.exit()
@@ -1304,7 +1304,7 @@ if (!gotTheLock) {
     })
 
     app.on('quit', function () {
-        mainWindow = null
+        global.mainWindow = mainWindow = null
         view = null
         tray.quit()
     })

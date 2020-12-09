@@ -55,7 +55,7 @@ let statusBarMenu = [
                 label: 'Reload',
                 accelerator: 'CmdOrCtrl+R',
                 click(item, focusedWindow) {
-                    if (focusedWindow) focusedWindow.reload()
+                    global.mainWindow.getBrowserView().webContents.reload()
                 },
             },
             {
@@ -65,10 +65,7 @@ let statusBarMenu = [
                         ? 'Alt+Command+I'
                         : 'Ctrl+Shift+I',
                 click(item, focusedWindow) {
-                    if (focusedWindow) {
-                        focusedWindow.webContents.openDevTools({ mode: 'detach' });
-                    }
-
+                    global.mainWindow.getBrowserView().webContents.openDevTools({ mode: 'detach' });
                 },
             },
             {
