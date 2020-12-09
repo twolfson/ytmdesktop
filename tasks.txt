@@ -2,4 +2,3 @@
 - [ ] Enable window bar
 - [ ] Disable weird right click
 - [ ] Remove excess bottom bar buttons
-- [ ] MPRIS
