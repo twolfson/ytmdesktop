@@ -28,6 +28,7 @@ const assetsProvider = require('./src/providers/assetsProvider')
 const { statusBarMenu } = require('./src/providers/templateProvider')
 const settingsProvider = require('./src/providers/settingsProvider')
 const infoPlayerProvider = require('./src/providers/infoPlayerProvider')
+const mprisProvider = require('./src/providers/mprisProvider')
 /* Variables =========================================================================== */
 // const defaultUrl = 'https://music.youtube.com'
 const defaultUrl = 'https://music.youtube.com/library'
@@ -98,6 +99,10 @@ if (
     } catch (error) {
         console.log('error windowsMediaProvider > ' + error)
     }
+}
+
+if (isLinux()) {
+    mprisProvider.start()
 }
 
 if (isMac()) {
@@ -321,6 +326,9 @@ function createWindow() {
     view.webContents.on('media-started-playing', function () {
         if (!infoPlayerProvider.hasInitialized()) {
             infoPlayerProvider.init(view)
+            if (isLinux()) {
+                mprisProvider.setRealPlayer(infoPlayerProvider) //this lets us keep track of the current time in playback.
+            }
         }
 
         if (
@@ -379,6 +387,8 @@ function createWindow() {
         var nowPlaying = `${title} - ${author}`
 
         if (title && author) {
+            mprisProvider.setActivity(getAll())
+
             mediaControl.setProgress(
                 mainWindow,
                 settingsProvider.get('settings-enable-taskbar-progressbar')
