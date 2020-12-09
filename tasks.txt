@@ -1,3 +1,2 @@
-- [ ] Add a forward button
 - [ ] Disable weird right click
 - [ ] Remove excess bottom bar buttons
