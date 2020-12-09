@@ -120,9 +120,11 @@ if (isMac()) {
             updateStatusBar()
         }
     )
-    const menu = Menu.buildFromTemplate(statusBarMenu)
-    Menu.setApplicationMenu(menu)
+    // const menu = Menu.buildFromTemplate(statusBarMenu)
+    // Menu.setApplicationMenu(menu)
 }
+const menu = Menu.buildFromTemplate(statusBarMenu)
+Menu.setApplicationMenu(menu)
 
 if (settingsProvider.get('settings-disable-hardware-acceleration')) {
     app.disableHardwareAcceleration()
