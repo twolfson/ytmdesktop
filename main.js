@@ -169,7 +169,6 @@ function createWindow() {
         minWidth: 300,
         minHeight: 300,
         show: windowMinimized ? false : true,
-        autoHideMenuBar: true,
         backgroundColor: '#232323',
         center: true,
         closable: true,
@@ -1270,10 +1269,6 @@ if (!gotTheLock) {
     app.on('open-url', function (event, url) {
         event.preventDefault()
         handleOpenUrl(url)
-    })
-
-    app.on('browser-window-created', function (e, window) {
-        window.removeMenu()
     })
 
     // Quit when all windows are closed.
