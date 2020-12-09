@@ -33,6 +33,7 @@
     "dependencies": {
         "electron-store": "^6.0.0",
         "i18n": "^0.10.0",
-        "image-to-base64": "^2.1.1"
+        "image-to-base64": "^2.1.1",
+        "mpris-service": "^2.1.0"
     }
 }
